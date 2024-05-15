@@ -77,8 +77,9 @@ namespace Flights.Controllers
         public IEnumerable<FlightRm> Search()
         => flights;
 
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         [ProducesResponseType(typeof(FlightRm),200)]
@@ -94,10 +95,21 @@ namespace Flights.Controllers
     [HttpPost]
     [ProducesResponseType(400)]
     [ProducesResponseType(500)]
-    public void Book(BookDto dto)
+    [ProducesResponseType(404)]
+    [ProducesResponseType(200)]
+    public IActionResult Book(BookDto dto)
     {
       System.Diagnostics.Debug.WriteLine($"Booking at flight {dto.FlightId}");
+
+      var flightFound = flights.Any(f => f.Id == dto.FlightId);
+
+      if(flightFound == false)
+      {
+        return NotFound();
+      }
+
       Bookings.Add(dto);
+      return CreatedAtAction(nameof(Find), new {id = dto.FlightId});
     }
         
     }
