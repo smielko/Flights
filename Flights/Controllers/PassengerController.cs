@@ -3,35 +3,40 @@ using Microsoft.AspNetCore.Mvc;
 using Flights.Dtos;
 using Flights.ReadModels;
 using Flights.Domain.Entities;
+using Flights.Data;
 namespace Flights.Controllers
 {
     [Route("[controller]")]
     [ApiController]
     public class PassengerController : ControllerBase
     {
-        static private IList<Passenger> Passengers = new List<Passenger>();
+    private readonly Entities _entities;//gets instantiated in the constructor (ctor)
 
-        [HttpPost]
+    public PassengerController(Entities entities)
+    {
+         _entities = entities; 
+    }
+    [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public IActionResult Register(NewPassengerDto dto)
         {
-            Passengers.Add(
+            _entities.Passengers.Add(
               new Passenger(
                 dto.Email,
                 dto.FirstName,
                 dto.LastName,
                 dto.Gender)
               );
-            System.Diagnostics.Debug.WriteLine(Passengers.Count);
+            System.Diagnostics.Debug.WriteLine(_entities.Passengers.Count);
             return CreatedAtAction(nameof(Find), new { email = dto.Email });
         }
 
         [HttpGet("{email}")]
         public ActionResult<PassengerRm> Find(string email)
         {
-            var passenger = Passengers.FirstOrDefault(p => p.Email == email);
+            var passenger = _entities.Passengers.FirstOrDefault(p => p.Email == email);
 
             if (passenger == null)
                 return NotFound();
