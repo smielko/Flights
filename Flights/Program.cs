@@ -1,7 +1,17 @@
 using Microsoft.OpenApi.Models;
 using Flights.Data;
 using Flights.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+
+//add dbcontext
+builder.Services.AddDbContext<Entities>(options =>
+options.UseInMemoryDatabase(databaseName: "Flights"),
+ServiceLifetime.Singleton);
+//would lose data if not Singleton (since it is in-memory)
+//every request would create a new instance of this service!
+
+
 
 // Add services to the container.
 
@@ -76,7 +86,8 @@ Flight[] flightsToSeed = new Flight[]
                     random.Next(1, 853))
 };
 entities.Flights.AddRange(flightsToSeed);
-
+//after adding elements to database need to save:
+entities.SaveChanges();
 
 app.UseCors(builder => builder
 .WithOrigins("*")

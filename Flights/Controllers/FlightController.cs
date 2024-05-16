@@ -4,6 +4,7 @@ using Flights.Dtos;
 using Flights.Domain.Entities;
 using Flights.Domain.Errors;
 using Flights.Data;
+using Microsoft.EntityFrameworkCore;
 namespace Flights.Controllers
 {
   [ApiController]
@@ -79,7 +80,18 @@ namespace Flights.Controllers
       if (error is OverbookError) {
        return  Conflict(new { message = " The number of Requested seats exceeds the seats remaining." });
       }
-      return CreatedAtAction(nameof(Find), new { id = dto.FlightId });
+
+      
+      try {
+        _entities.SaveChanges(); //!!!!!
+      } catch(DbUpdateConcurrencyException)
+      {
+        return Conflict(new { message = "An error occured while booking, please try again." });
+      }
+      
+        
+      
+        return CreatedAtAction(nameof(Find), new { id = dto.FlightId });
     }
   }
 }
