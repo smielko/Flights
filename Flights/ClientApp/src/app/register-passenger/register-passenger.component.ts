@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { PassengerService } from './../api/services/passenger.service';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-register-passenger',
@@ -14,7 +14,11 @@ export class RegisterPassengerComponent implements OnInit {
   constructor(private passengerService: PassengerService,
     private fb: FormBuilder,
     private authService: AuthService,
-    private router:Router  ) { }
+    private router: Router,
+    private activatedRoute: ActivatedRoute) { }
+
+  requestedUrl?: string = undefined;
+
 
   form = this.fb.group({
     email: ['', Validators.compose([Validators.required,Validators.minLength(3), Validators.maxLength(100)])],
@@ -24,6 +28,7 @@ export class RegisterPassengerComponent implements OnInit {
   })
 
   ngOnInit(): void {
+    this.activatedRoute.params.subscribe(p => this.requestedUrl = p['requestedUrl']);
   }
 
   checkPassenger(): void {
@@ -53,7 +58,7 @@ export class RegisterPassengerComponent implements OnInit {
 
   private login = () => { //must be arrow function to use the authService
     this.authService.loginUser({ email: this.form.get('email')?.value })
-    this.router.navigate(['/search-flights'])
+    this.router.navigate([this.requestedUrl ?? '/search-flights']) //if requested url is null go to search-flights
   }//indication context
   //this can also refer to method or function in typescript, it does not refer to the instance of register passenger, this instead
   //refers to the arrow function here.

@@ -13,14 +13,15 @@ namespace Flights.Data
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      modelBuilder.Entity<Passenger>().HasKey(p => p.Email);
+      modelBuilder.Entity<Passenger>().HasKey(p => p.Email); //primary key = email
 
       modelBuilder.Entity<Flight>().Property(p => p.RemainingNumberOfSeats)
         .IsConcurrencyToken(); //race condition guard; also change flightcontroller book method
 
-
       modelBuilder.Entity<Flight>().OwnsOne(f => f.Departure);
       modelBuilder.Entity<Flight>().OwnsOne(f => f.Arrival);
+
+      modelBuilder.Entity<Flight>().OwnsMany(f => f.Bookings);
     }
 
   }
